@@ -1,5 +1,3 @@
-// App.tsx
-
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
@@ -16,13 +14,14 @@ function App() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(16); // Nombre de Pokémon par page
 
   const fetchPokemon = async () => {
     setIsLoading(true);
     try {
       const response = await axios.get('https://pokebuildapi.fr/api/v1/pokemon/limit/100');
       setUsers(response.data);
-      console.log(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {
@@ -39,11 +38,19 @@ function App() {
     return userList;
   };
 
-  const usersToDisplay = searchUser((users));
+  // Index du dernier Pokémon de la page
+  const indexOfLastUser = currentPage * usersPerPage;
+  // Index du premier Pokémon de la page
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  // Utilisateurs de la page actuelle
+  const currentUsers = searchUser(users).slice(indexOfFirstUser, indexOfLastUser);
 
   useEffect(() => {
     fetchPokemon();
   }, []);
+
+  // Changer de page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <>
@@ -56,26 +63,30 @@ function App() {
         <Routes>
           {/* Page principale avec la navigation */}
           <Route path='/' element={
-            <>
+            <div className="container">
               <h1>Pokédex</h1>
               <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher un pokémon" />
-              <table id="tbl-users" className="table table-hover">
-                <thead>
-                  {usersToDisplay.map((user) => (
-                    <tr key={user.pokedexId}>
-                      <td><img src={user.sprite} alt="User Thumbnail" /></td>
-                      <td>{user.pokedexId}</td>
-                      <td>
-                        {user.name}
-                        <Link to={`/Stats/${user.pokedexId}`}>
-                          <label>   Stats</label>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </thead>
-              </table>
-            </>
+              <div className="card-container">
+                {currentUsers.map((user) => (
+                  <div className="card" key={user.pokedexId}>
+                    <img src={user.sprite} alt="User Thumbnail" />
+                    <div className="card-details">
+                      <span>{user.pokedexId}</span>
+                      <span>{user.name}</span>
+                      <Link to={`/Stats/${user.pokedexId}`}>
+                        <label>Stats</label>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Pagination */}
+              <div className="pagination">
+                {Array.from({ length: Math.ceil(searchUser(users).length / usersPerPage) }, (_, index) => (
+                  <button key={index + 1} onClick={() => paginate(index + 1)}>{index + 1}</button>
+                ))}
+              </div>
+            </div>
           } />
   
           {/* Route pour la page de statistiques */}

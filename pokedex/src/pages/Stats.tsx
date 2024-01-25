@@ -61,16 +61,10 @@ const Stats: React.FC = () => {
                     {usersToDisplay.map((user) => (
                         <tr key={user.pokedexId}>
                             <td><img src={user.sprite} alt="User Thumbnail" /></td>
-                            <td>{user.pokedexId}</td>
-                            <td>{user.pokedexId}</td>
-                            <td>{user.pokedexId}</td>
-                            <td>{user.pokedexId}</td>
-                            <td>
-                                {user.name}
-                                <Link to={`/Stats/${user.pokedexId}`}>
-                                    <label>   Stats</label>
-                                </Link>
-                            </td>
+                            <td>{user.stats.HP}</td>
+                            <td>{user.stats.attack}</td>
+                            <td>{user.stats.defense}</td>
+                            <td>{user.stats.special_attack}</td>
                         </tr>
                     ))}
                 </thead>
