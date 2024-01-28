@@ -1,3 +1,4 @@
+// Stats.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useParams } from 'react-router-dom';
@@ -96,9 +97,9 @@ const Stats: React.FC = () => {
   }, [pokedexId]);
 
   const getResistanceType = (damageMultiplier: number): string => {
-    if (damageMultiplier > 1) {
-      return 'Sensible';
-    } else if (damageMultiplier < 1) {
+    if (damageMultiplier > 1.5) {
+      return 'Vulnérable';
+    } else if (damageMultiplier < 0.5) {
       return 'Résistant';
     } else {
       return 'Neutre';
@@ -106,9 +107,9 @@ const Stats: React.FC = () => {
   };
 
   const getResistanceColorClass = (damageMultiplier: number): string => {
-    if (damageMultiplier > 1) {
-      return 'sensible-color';
-    } else if (damageMultiplier < 1) {
+    if (damageMultiplier > 1.5) {
+      return 'vulnerable-color';
+    } else if (damageMultiplier < 0.5) {
       return 'resistant-color';
     } else {
       return 'neutral-color';
@@ -152,71 +153,118 @@ const Stats: React.FC = () => {
             </div>
 
             <div className="pokemon-stats">
-              <h3>{userData.name}</h3>
-              <h3>Stats</h3>
-              <table>
-                <tbody>
-                  <tr>
-                    <td>HP:</td>
-                    <td>{userData.stats?.HP}</td>
-                  </tr>
-                  <tr>
-                    <td>Attaque:</td>
-                    <td>{userData.stats?.attack}</td>
-                  </tr>
-                  <tr>
-                    <td>Défense:</td>
-                    <td>{userData.stats?.defense}</td>
-                  </tr>
-                  <tr>
-                    <td>Attaque spéciale:</td>
-                    <td>{userData.stats?.special_attack}</td>
-                  </tr>
-                  <tr>
-                    <td>Vitesse:</td>
-                    <td>{userData.stats?.speed}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+  <h3>{userData.name}</h3>
+  <div className="progress-bar">
+    <span>HP:</span>
+    <div className="progress">
+      <div
+        className="progress-bar-inner"
+        style={{ width: `${(userData.stats?.HP / 255) * 100}%` }}
+      ></div>
+    </div>
+  </div>
+  <div className="progress-bar">
+    <span>Attaque:</span>
+    <div className="progress">
+      <div
+        className="progress-bar-inner"
+        style={{ width: `${(userData.stats?.attack / 255) * 100}%` }}
+      ></div>
+    </div>
+  </div>
+  <div className="progress-bar">
+    <span>Défense:</span>
+    <div className="progress">
+      <div
+        className="progress-bar-inner"
+        style={{ width: `${(userData.stats?.defense / 255) * 100}%` }}
+      ></div>
+    </div>
+  </div>
+  <div className="progress-bar">
+    <span>Attaque spéciale:</span>
+    <div className="progress">
+      <div
+        className="progress-bar-inner"
+        style={{ width: `${(userData.stats?.special_attack / 255) * 100}%` }}
+      ></div>
+    </div>
+  </div>
+  <div className="progress-bar">
+    <span>Vitesse:</span>
+    <div className="progress">
+      <div
+        className="progress-bar-inner"
+        style={{ width: `${(userData.stats?.speed / 255) * 100}%` }}
+      ></div>
+    </div>
+  </div>
+</div>
 
-            {/* Affichage des résistances du Pokémon */}
-            <div className="pokemon-resistances">
-              <h3>Résistances</h3>
-              {userData.apiResistances && userData.apiResistances.length > 0 ? (
+            {userData.apiResistances && userData.apiResistances.length > 0 && (
+              <div>
+                <h3>Résistances</h3>
+                <div className="resistances-container">
+                  <div className="resistance-category">
+                    <h4>Vulnérable</h4>
+                    <ul>
+                      {userData.apiResistances
+                        .filter((resistance) => resistance.damage_relation === 'vulnerable')
+                        .map((resistance, index) => (
+                          <li key={index}>
+                            <span className={getResistanceColorClass(resistance.damage_multiplier)}>
+                              {resistance.name}
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                  <div className="resistance-category">
+                    <h4>Résistant</h4>
+                    <ul>
+                      {userData.apiResistances
+                        .filter((resistance) => resistance.damage_relation === 'resistant')
+                        .map((resistance, index) => (
+                          <li key={index}>
+                            <span className={getResistanceColorClass(resistance.damage_multiplier)}>
+                              {resistance.name}
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                  <div className="resistance-category">
+                    <h4>Neutre</h4>
+                    <ul>
+                      {userData.apiResistances
+                        .filter((resistance) => resistance.damage_relation === 'neutral')
+                        .map((resistance, index) => (
+                          <li key={index}>
+                            <span className={getResistanceColorClass(resistance.damage_multiplier)}>
+                              {resistance.name}
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {userData.evolutionDetails && userData.evolutionDetails.length > 0 && (
+              <div>
+                <h3>Évolutions</h3>
                 <ul>
-                  {userData.apiResistances.map((resistance, index) => (
-                    <li
-                      key={index}
-                      className={`${getResistanceColorClass(
-                        resistance.damage_multiplier
-                      )} resistance-item`}
-                    >
-                      <span className="resistance-name">{resistance.name}</span> -{' '}
-                      {getResistanceType(resistance.damage_multiplier)} (
-                      {resistance.damage_relation})
+                  {userData.evolutionDetails.map((evolution) => (
+                    <li key={evolution.pokedexId}>
+                      <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
+                      <span>{evolution.name}</span>
                     </li>
                   ))}
                 </ul>
-              ) : (
-                <p>Aucune résistance disponible</p>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-
-          {userData.evolutionDetails && userData.evolutionDetails.length > 0 && (
-            <div>
-              <h3>Évolutions</h3>
-              <ul>
-                {userData.evolutionDetails.map((evolution) => (
-                  <li key={evolution.pokedexId}>
-                    <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
-                    <span>{evolution.name}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       )}
     </>
