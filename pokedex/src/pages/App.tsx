@@ -28,7 +28,7 @@ function App() {
       setIsLoading(false);
     }
   };
-
+ 
   const searchUser = (userList: User[]) => {
     if (search) {
       return userList.filter(user => (
