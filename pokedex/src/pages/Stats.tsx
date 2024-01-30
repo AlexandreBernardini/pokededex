@@ -10,6 +10,12 @@ interface Evolution {
   sprite: string;
 }
 
+interface PreEvolution {
+  name: string;
+  pokedexId: number;
+  sprite: string;
+}
+
 interface TypePok {
   name: string;
   image: string;
@@ -37,9 +43,11 @@ interface User {
   image: string;
   stats: UserStats;
   apiEvolutions: Evolution[];
+  apiPreEvolution: PreEvolution[];
   apiTypes: TypePok[];
   apiResistances: Ressistance[];
   evolutionDetails: { name: string; pokedexId: number; sprite: string }[];
+  preEvolutionDetails: { name: string; pokedexId: number; sprite: string }[];
 }
 
 const Stats: React.FC = () => {
@@ -58,9 +66,11 @@ const Stats: React.FC = () => {
       speed: 0,
     },
     apiEvolutions: [],
+    apiPreEvolution: [],
     apiTypes: [],
     apiResistances: [],
     evolutionDetails: [],
+    preEvolutionDetails: [],
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -78,12 +88,23 @@ const Stats: React.FC = () => {
           sprite: evolutionResponse.data.sprite,
         };
       });
+      const evolutionDetailsPromise = response.data.apiEvolutions.map(async (evolution: PreEvolution) => {
+        const evolutionResponse = await axios.get(`https://pokebuildapi.fr/api/v1/pokemon/${evolution.pokedexId - 2}`);
+        return {
+          name: evolutionResponse.data.name,
+          pokedexId: evolutionResponse.data.pokedexId,
+          sprite: evolutionResponse.data.sprite,
+        };
+      });
 
       const evolutionDetails = await Promise.all(evolutionDetailsPromises);
+      const preEvolutionDetails = await Promise.all(evolutionDetailsPromise);
 
       setUserData((prevState) => ({
         ...prevState,
         evolutionDetails: [...evolutionDetails],
+        preEvolutionDetails: [...preEvolutionDetails],
+        
       }) as Partial<User>);
     } catch (error) {
       console.error('Error fetching Pokémon data:', error);
@@ -96,20 +117,10 @@ const Stats: React.FC = () => {
     fetchPokemonData();
   }, [pokedexId]);
 
-  const getResistanceType = (damageMultiplier: number): string => {
-    if (damageMultiplier > 1.5) {
-      return 'Vulnérable';
-    } else if (damageMultiplier < 0.5) {
-      return 'Résistant';
-    } else {
-      return 'Neutre';
-    }
-  };
-
   const getResistanceColorClass = (damageMultiplier: number): string => {
     if (damageMultiplier > 1.5) {
       return 'vulnerable-color';
-    } else if (damageMultiplier < 0.5) {
+    } else if (damageMultiplier <= 0.5) {
       return 'resistant-color';
     } else {
       return 'neutral-color';
@@ -142,7 +153,9 @@ const Stats: React.FC = () => {
                     {userData.apiTypes.map((type, index) => (
                       <li key={index}>
                         <img src={type.image} alt={`${type.name} Type`} />
-                        {type.name}
+                        <div className="type-name-container">
+                          <span>{type.name}</span>
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -153,109 +166,119 @@ const Stats: React.FC = () => {
             </div>
 
             <div className="pokemon-stats">
-  <h3>{userData.name}</h3>
-  <div className="progress-bar">
-    <span>HP:</span>
-    <div className="progress">
-      <div
-        className="progress-bar-inner"
-        style={{ width: `${(userData.stats?.HP / 255) * 100}%` }}
-      ></div>
-    </div>
-  </div>
-  <div className="progress-bar">
-    <span>Attaque:</span>
-    <div className="progress">
-      <div
-        className="progress-bar-inner"
-        style={{ width: `${(userData.stats?.attack / 255) * 100}%` }}
-      ></div>
-    </div>
-  </div>
-  <div className="progress-bar">
-    <span>Défense:</span>
-    <div className="progress">
-      <div
-        className="progress-bar-inner"
-        style={{ width: `${(userData.stats?.defense / 255) * 100}%` }}
-      ></div>
-    </div>
-  </div>
-  <div className="progress-bar">
-    <span>Attaque spéciale:</span>
-    <div className="progress">
-      <div
-        className="progress-bar-inner"
-        style={{ width: `${(userData.stats?.special_attack / 255) * 100}%` }}
-      ></div>
-    </div>
-  </div>
-  <div className="progress-bar">
-    <span>Vitesse:</span>
-    <div className="progress">
-      <div
-        className="progress-bar-inner"
-        style={{ width: `${(userData.stats?.speed / 255) * 100}%` }}
-      ></div>
-    </div>
-  </div>
-</div>
+              <h3>{userData.name}</h3>
 
-            {userData.apiResistances && userData.apiResistances.length > 0 && (
-              <div>
-                <h3>Résistances</h3>
-                <div className="resistances-container">
-                  <div className="resistance-category">
-                    <h4>Vulnérable</h4>
-                    <ul>
-                      {userData.apiResistances
-                        .filter((resistance) => resistance.damage_relation === 'vulnerable')
-                        .map((resistance, index) => (
-                          <li key={index}>
-                            <span className={getResistanceColorClass(resistance.damage_multiplier)}>
-                              {resistance.name}
-                            </span>
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
-                  <div className="resistance-category">
-                    <h4>Résistant</h4>
-                    <ul>
-                      {userData.apiResistances
-                        .filter((resistance) => resistance.damage_relation === 'resistant')
-                        .map((resistance, index) => (
-                          <li key={index}>
-                            <span className={getResistanceColorClass(resistance.damage_multiplier)}>
-                              {resistance.name}
-                            </span>
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
-                  <div className="resistance-category">
-                    <h4>Neutre</h4>
-                    <ul>
-                      {userData.apiResistances
-                        .filter((resistance) => resistance.damage_relation === 'neutral')
-                        .map((resistance, index) => (
-                          <li key={index}>
-                            <span className={getResistanceColorClass(resistance.damage_multiplier)}>
-                              {resistance.name}
-                            </span>
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
+              <div className="progress-bar">
+                <span>HP: {userData.stats?.HP}</span>
+                <div className="progress">
+                  <div className="progress-bar-inner" style={{ width: `${(userData.stats!.HP / 255) * 100}%` }} />
                 </div>
               </div>
-            )}
+
+              <div className="progress-bar">
+                <span>Attaque: {userData.stats?.attack}</span>
+                <div className="progress">
+                  <div className="progress-bar-inner" style={{ width: `${(userData.stats!.attack / 255) * 100}%` }} />
+                </div>
+
+              </div>
+              <div className="progress-bar">
+                <span>Défense: {userData.stats?.defense}</span>
+                <div className="progress">
+                  <div className="progress-bar-inner" style={{ width: `${(userData.stats!.defense / 255) * 100}%` }} />
+                </div>
+              </div>
+
+              <div className="progress-bar">
+                <span>Attaque spéciale: {userData.stats?.special_attack}</span>
+                <div className="progress">
+                  <div className="progress-bar-inner" style={{ width: `${(userData.stats!.special_attack / 255) * 100}%` }} />
+                </div>
+              </div>
+
+              <div className="progress-bar">
+                <span>Attaque défense: {userData.stats?.special_defense}</span>
+                <div className="progress">
+                  <div className="progress-bar-inner" style={{ width: `${(userData.stats!.special_attack / 255) * 100}%` }} />
+                </div>
+              </div>
+
+              <div className="progress-bar">
+                <span>Vitesse:{userData.stats?.speed}</span>
+                <div className="progress">
+                  <div className="progress-bar-inner" style={{ width: `${(userData.stats!.speed / 255) * 100}%` }} />
+                </div>
+
+              </div>
+              {userData.apiResistances && userData.apiResistances.length > 0 && (
+                <div>
+                  <h3>Résistances</h3>
+                  <div className="resistances-container">
+                    <div className="resistance-category">
+                      <h4>Vulnérable</h4>
+                      <ul>
+                        {userData.apiResistances
+                          .filter((resistance) => resistance.damage_relation === 'vulnerable')
+                          .map((resistance, index) => (
+                            <li key={index}>
+                              <span className={getResistanceColorClass(resistance.damage_multiplier)}>
+                                {resistance.name}
+                              </span>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                    <div className="resistance-category">
+                      <h4>Résistant</h4>
+                      <ul>
+                        {userData.apiResistances
+                          .filter((resistance) => resistance.damage_relation === 'resistant')
+                          .map((resistance, index) => (
+                            <li key={index}>
+                              <span className={getResistanceColorClass(resistance.damage_multiplier)}>
+                                {resistance.name}
+                              </span>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                    <div className="resistance-category">
+                      <h4>Neutre</h4>
+                      <ul>
+                        {userData.apiResistances
+                          .filter((resistance) => resistance.damage_relation === 'neutral')
+                          .map((resistance, index) => (
+                            <li key={index}>
+                              <span className={getResistanceColorClass(resistance.damage_multiplier)}>
+                                {resistance.name}
+                              </span>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {userData.evolutionDetails && userData.evolutionDetails.length > 0 && (
               <div>
                 <h3>Évolutions</h3>
                 <ul>
                   {userData.evolutionDetails.map((evolution) => (
+                    <li key={evolution.pokedexId}>
+                      <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
+                      <span>{evolution.name}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {userData.preEvolutionDetails && userData.preEvolutionDetails.length > 0 && (
+              <div>
+                <h3>prÉvolutions</h3>
+                <ul>
+                  {userData.preEvolutionDetails.map((evolution) => (
                     <li key={evolution.pokedexId}>
                       <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
                       <span>{evolution.name}</span>

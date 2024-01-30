@@ -65,7 +65,9 @@ function App() {
           <Route path='/' element={
             <div className="container">
               <h1>Pokédex</h1>
+              <div className='filtre'>
               <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher un pokémon" />
+              </div>
               <div className="card-container">
                 {currentUsers.map((user) => (
                   <div className="card" key={user.pokedexId}>

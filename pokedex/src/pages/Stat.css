@@ -39,7 +39,7 @@
     transition: transform 0.3s ease;
     margin: 20px;
     padding: 20px;
-    width: 900px;
+    width: 1600px;
   }
   
   .pokemon-card:hover {
@@ -47,7 +47,7 @@
   }
   
   .pokemon-image img {
-    width: 120px;
+    width: 500px;
     height: auto;
     border-bottom: 1px solid #ddd;
     margin-right: 20px;
@@ -68,17 +68,33 @@
   }
   
   .pokemon-types li {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
   }
   
   .pokemon-types li img {
-    width: 20px;
-    height: 20px;
-    margin-right: 5px;
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
   }
   
+  .pokemon-types li .type-name-container {
+    display: flex;
+    flex-direction: column; /* Stack name on top of the image */
+    align-items: flex-end; /* Align name to the right */
+  }
+  
+  .pokemon-types li .type-name-container span {
+    width: 0px; /* Adjust the width as needed */
+    text-align: center;
+    color: black;
+    font-weight: bold;
+    border-radius: 3px;
+    margin-bottom: 5px;
+    margin-right: 100px;
+  }
+
   .pokemon-stats {
     flex: 1;
     text-align: left;
@@ -109,15 +125,25 @@
   }
   
   .vulnerable-color {
-    color: red;
+    color: black;
+    border-radius: 8px;
+    background-color: red;
+    width: 80px;
+    text-align: center;
   }
   
   .resistant-color {
-    color: green;
+    color: black;
+    background-color: green;
+    width: 80px;
+    text-align: center;
   }
   
   .neutral-color {
-    color: gray;
+    color: black;
+    background-color: gray;
+    width: 80px;
+    text-align: center;
   }
   
   .resistances-container {
@@ -127,6 +153,8 @@
   
   .resistance-category {
     flex: 1;
+    margin-bottom: 5px;
+  margin-right: 10px; /* Ajout de marge entre les éléments */
   }
   
   .resistance-category h4 {
@@ -134,6 +162,9 @@
   }
   
   .resistance-category ul {
+    
+    display: flex;
+    flex-wrap: wrap;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -141,6 +172,7 @@
   
   .resistance-category li {
     margin-bottom: 5px;
+    margin-right: 10px;
   }
   
   .resistance-category span {
