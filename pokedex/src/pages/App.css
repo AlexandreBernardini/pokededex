@@ -95,3 +95,13 @@
 .filtre{
   margin-bottom: 20px;
 }
+
+select {
+  height: 40px; /* Ajustez la hauteur selon vos besoins */
+  width: 300px;
+}
+
+select option {
+  padding: 15px; /* Ajustez la hauteur selon vos besoins */
+  font-size: 14px; /* Ajustez la taille de la police selon vos besoins */
+}

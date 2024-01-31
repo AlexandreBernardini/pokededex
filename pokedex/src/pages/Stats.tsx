@@ -104,7 +104,7 @@ const Stats: React.FC = () => {
         ...prevState,
         evolutionDetails: [...evolutionDetails],
         preEvolutionDetails: [...preEvolutionDetails],
-        
+
       }) as Partial<User>);
     } catch (error) {
       console.error('Error fetching Pokémon data:', error);
@@ -261,32 +261,34 @@ const Stats: React.FC = () => {
               )}
             </div>
 
-            {userData.evolutionDetails && userData.evolutionDetails.length > 0 && (
-              <div>
-                <h3>Évolutions</h3>
-                <ul>
-                  {userData.evolutionDetails.map((evolution) => (
-                    <li key={evolution.pokedexId}>
-                      <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
-                      <span>{evolution.name}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <div className="evolution-container">
             {userData.preEvolutionDetails && userData.preEvolutionDetails.length > 0 && (
-              <div>
-                <h3>prÉvolutions</h3>
-                <ul>
-                  {userData.preEvolutionDetails.map((evolution) => (
-                    <li key={evolution.pokedexId}>
-                      <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
-                      <span>{evolution.name}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                <div>
+                  <h3>prÉvolutions</h3>
+                  <ul>
+                    {userData.preEvolutionDetails.map((evolution) => (
+                      <li key={evolution.pokedexId}>
+                        <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
+                        <span>{evolution.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>              
             )}
+              {userData.evolutionDetails && userData.evolutionDetails.length > 0 && (
+                <div>
+                  <h3>Évolutions</h3>
+                  <ul>
+                    {userData.evolutionDetails.map((evolution) => (
+                      <li key={evolution.pokedexId}>
+                        <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
+                        <span>{evolution.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}              
+            </div>
           </div>
         </div>
       )}
