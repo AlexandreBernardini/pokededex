@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
@@ -92,7 +92,6 @@ function App() {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
 
   const filteredUsers = sortUsers(filterByType(filterByGeneration(searchUser(users))));
-  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -131,23 +130,23 @@ function App() {
                 </select>
               </div>
               <div className="card-container">
-  {filteredUsers.slice(indexOfFirstUser, indexOfLastUser).map((user) => (
-    <div className="card" key={user.pokedexId}>
-      <img src={user.sprite} alt="User Thumbnail" />
-      <div className="card-details">
-        <span>{user.pokedexId}</span>
-        <span>{user.name}</span>
-        <Link to={`/Stats/${user.pokedexId}`}>
-          <label>Stats</label>
-        </Link>
-      </div>
-    </div>
-  ))}
-</div>
+                {filteredUsers.slice(indexOfFirstUser, indexOfLastUser).map((user) => (
+                  <div className="card" key={user.pokedexId}>
+                    <img src={user.sprite} alt="User Thumbnail" />
+                    <div className="card-details">
+                      <span>{user.pokedexId}</span>
+                      <span>{user.name}</span>
+                      <Link to={`/Stats/${user.pokedexId}`}>
+                        <label>Stats</label>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
               <div className="pagination">
-              {Array.from({ length: Math.ceil(filteredUsers.length / usersPerPage) }, (_, index) => (
-  <button key={index + 1} onClick={() => paginate(index + 1)}>{index + 1}</button>
-))}
+                {Array.from({ length: Math.ceil(filteredUsers.length / usersPerPage) }, (_, index) => (
+                  <button key={index + 1} onClick={() => paginate(index + 1)}>{index + 1}</button>
+                ))}
               </div>
             </div>
           } />
