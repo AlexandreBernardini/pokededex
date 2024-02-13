@@ -12,6 +12,7 @@ interface TypePok {
 interface User {
   id: number;
   name: string;
+  image: string;
   pokedexId: string;
   sprite: string;
   apiTypes: TypePok[];
@@ -23,8 +24,6 @@ function App() {
   const [types, setTypes] = useState<TypePok[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [usersPerPage] = useState(16);
   const [selectedType, setSelectedType] = useState('Tous les types');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedGeneration, setSelectedGeneration] = useState<string>('all');
@@ -84,29 +83,25 @@ function App() {
     fetchPokemon();
   }, [selectedGeneration, selectedType, sortOrder]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedGeneration, selectedType, sortOrder]);
-
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
 
   const filteredUsers = sortUsers(filterByType(filterByGeneration(searchUser(users))));
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <>
-      {isLoading && (
-        <div className="spinner-container">
-          <div className="loading-spinner"></div>
-        </div>
-      )}
       <BrowserRouter>
         <Routes>
           <Route path='/' element={
             <div className="container">
-              <h1>Pokédex</h1>
+              {isLoading && (
+                <div className='ball-container'>
+                  <div className="ball">
+                  </div>
+                </div>
+              )}
+              <div className='header'>
+                <h1>Pokédex</h1>
+              </div>
               <div className='filtre'>
                 <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher un pokémon" />
                 <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
@@ -127,25 +122,37 @@ function App() {
                   <option value="1">Génération 1</option>
                   <option value="2">Génération 2</option>
                   <option value="3">Génération 3</option>
+                  <option value="4">Génération 4</option>
+                  <option value="5">Génération 5</option>
+                  <option value="6">Génération 6</option>
+                  <option value="7">Génération 7</option>
+                  <option value="8">Génération 8</option>
                 </select>
               </div>
               <div className="card-container">
-                {filteredUsers.slice(indexOfFirstUser, indexOfLastUser).map((user) => (
-                  <div className="card" key={user.pokedexId}>
-                    <img src={user.sprite} alt="User Thumbnail" />
-                    <div className="card-details">
-                      <span>{user.pokedexId}</span>
-                      <span>{user.name}</span>
-                      <Link to={`/Stats/${user.pokedexId}`}>
-                        <label>Stats</label>
-                      </Link>
+                {filteredUsers.slice().map((user) => (
+                  <Link to={`/Stats/${user.pokedexId}`}>
+                    <div className="card" key={user.pokedexId}>
+                      <img src={user.image} alt="User Thumbnail" />
+                      <div className="card-details">
+                        <span>N°{user.pokedexId}</span>
+                        <span>{user.name}</span>
+                      </div>
+                      <div className="pokemon-types-app">
+                        {user.apiTypes ? (
+                          <ul>
+                            {user.apiTypes.map((type, index) => (
+                              <li key={index}>
+                                <img src={type.image} alt={`${type.name} Type`} />
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p>Aucun type disponible</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-              <div className="pagination">
-                {Array.from({ length: Math.ceil(filteredUsers.length / usersPerPage) }, (_, index) => (
-                  <button key={index + 1} onClick={() => paginate(index + 1)}>{index + 1}</button>
+                  </Link>
                 ))}
               </div>
             </div>

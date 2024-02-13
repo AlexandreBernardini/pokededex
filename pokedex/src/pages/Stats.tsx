@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useParams } from 'react-router-dom';
 import './Stat.css';
+import { AiOutlineHome } from "react-icons/ai";
 
 interface Evolution {
   name: string;
@@ -129,19 +130,26 @@ const Stats: React.FC = () => {
 
   return (
     <>
-      {isLoading && (
-        <div className="spinner-container">
-          <div className="loading-spinner"></div>
-        </div>
-      )}
+
       {userData && (
         <div className="stats-container">
-          <h2>Page des Statistiques</h2>
-          <p>Statistiques du Pokémon avec l'ID Pokedex : {userData.pokedexId}</p>
-
-          <Link to="/">
-            <button>Retour au Pokédex</button>
-          </Link>
+          {isLoading && (
+            <div className='ball-container'>
+              <div className="ball">
+              </div>
+            </div>
+          )}
+          <div className='header-stats'>
+          <div className='header-stat'>
+            <h1>{userData.name}</h1>
+            <p>Statistiques du Pokémon avec l'ID Pokedex : {userData.pokedexId}</p>            
+          </div>
+          <div className='button-place'>
+              <Link to="/">
+                <button><AiOutlineHome /></button>
+              </Link>
+            </div>
+            </div>
 
           <div className="pokemon-card">
             <div className="pokemon-image">
@@ -166,7 +174,6 @@ const Stats: React.FC = () => {
             </div>
 
             <div className="pokemon-stats">
-              <h3>{userData.name}</h3>
 
               <div className="progress-bar">
                 <span>HP: {userData.stats?.HP}</span>
@@ -211,8 +218,7 @@ const Stats: React.FC = () => {
 
               </div>
               {userData.apiResistances && userData.apiResistances.length > 0 && (
-                <div>
-                  <h3>Résistances</h3>
+                <div> 
                   <div className="resistances-container">
                     <div className="resistance-category">
                       <h4>Vulnérable</h4>
@@ -262,32 +268,36 @@ const Stats: React.FC = () => {
             </div>
 
             <div className="evolution-container">
-            {userData.preEvolutionDetails && userData.preEvolutionDetails.length > 0 && (
-                <div>
-                  <h3>prÉvolutions</h3>
-                  <ul>
-                    {userData.preEvolutionDetails.map((evolution) => (
-                      <li key={evolution.pokedexId}>
-                        <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
-                        <span>{evolution.name}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>              
-            )}
-              {userData.evolutionDetails && userData.evolutionDetails.length > 0 && (
-                <div>
-                  <h3>Évolutions</h3>
-                  <ul>
-                    {userData.evolutionDetails.map((evolution) => (
-                      <li key={evolution.pokedexId}>
-                        <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
-                        <span>{evolution.name}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}              
+              <div className="evolution-col">
+                {userData.preEvolutionDetails && userData.preEvolutionDetails.length > 0 && (
+                  <div>
+                    <h3>prÉvolutions</h3>
+                    <ul>
+                      {userData.preEvolutionDetails.map((evolution) => (
+                        <li key={evolution.pokedexId}>
+                          <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
+                          <span>{evolution.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <div className="evolution-col">
+                {userData.evolutionDetails && userData.evolutionDetails.length > 0 && (
+                  <div>
+                    <h3>Évolutions</h3>
+                    <ul>
+                      {userData.evolutionDetails.map((evolution) => (
+                        <li key={evolution.pokedexId}>
+                          <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
+                          <span>{evolution.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

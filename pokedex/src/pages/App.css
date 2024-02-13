@@ -1,44 +1,21 @@
 #root {
-  width: 100%;
-  margin: 0 auto;
-  padding: 2rem;
   text-align: center;
-  overflow-x: hidden;
-  background-color: orange;
+  overflow-x: hidden;  
+  background-color: rgb(31, 30, 30);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.header {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(31, 30, 30);
 }
 
 .container {
   width: 100%;
-  margin: 0 auto;
-  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size:medium; 
 }
 
 .card-container {
@@ -55,6 +32,8 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: transform 0.3s ease;
+  border: white 2px solid;
+  background: linear-gradient(to bottom, #e83e35 0%, yellow, 52%, #ffffff 50%, #ffffff 100%);
 }
 
 .card:hover {
@@ -64,11 +43,10 @@
 .card img {
   width: 100%;
   height: auto;
-  border-bottom: 1px solid #ddd;
 }
 
 .card-details {
-  padding: 15px;
+  color: black;
 }
 
 .card-details span {
@@ -94,14 +72,95 @@
 
 .filtre{
   margin-bottom: 20px;
+  border-left: 1px solid #ddd;
 }
 
 select {
-  height: 40px; /* Ajustez la hauteur selon vos besoins */
+  height: 40px; 
   width: 300px;
 }
 
 select option {
-  padding: 15px; /* Ajustez la hauteur selon vos besoins */
-  font-size: 14px; /* Ajustez la taille de la police selon vos besoins */
+  padding: 15px; 
+  font-size: 14px; 
+}
+
+.ball-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ball { 
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: white;
+  position: relative;
+  box-shadow: -20px 0 rgba(0, 0, 0, 0.1) inset;
+  animation: roll 1s ease-in-out infinite;
+  background: linear-gradient(
+    to bottom,
+    #e83e35 0%,
+    #e83e35 50.5%,
+    #ffffff 50.51%,
+    #ffffff 100%
+  );
+}
+
+.ball:after {
+  content: "";
+  position: absolute;
+  top: calc(25px - 3px);
+  left: 0;
+  width: 50px;
+  height: 6px;
+  background: #3f3f3f;
+}
+
+.ball:before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 13px;
+  height: 13px;
+  border: solid 6px #3f3f3f;
+  border-radius: 50%;
+  background: white;
+  z-index: 1;
+  box-shadow: 0 0 15px -2px #c62828 inset;
+  animation: button 3s ease infinite;
+}
+
+@keyframes roll {
+  from {
+    transform: rotate(0);
+  }
+  90%,
+  to {
+    transform: rotate(720deg);
+  }
+}
+
+@keyframes button {
+  from,
+  50%,
+  to {
+    box-shadow: 0 0 15px -2px #c62828 inset;
+  }
+
+  25%,
+  75% {
+    box-shadow: 0 0 10px -2px #1300ea inset;
+  }
+}
+.pokemon-types-app li img {
+  width: 40px;
+  height: 40px;
+}
+.pokemon-types-app li {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 20px;
 }
