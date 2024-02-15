@@ -28,6 +28,7 @@ interface UserStats {
 }
 
 interface User {
+  id: number;
   name: string;
   pokedexId: string;
   sprite: string;
@@ -41,8 +42,9 @@ const Stats: React.FC = () => {
   const { pokedexId } = useParams<{ pokedexId: string }>();
   const { pokemon, pokemonEvolution, pokemonPreEvolution } = GetOnePokemon(Number(pokedexId));
   const [userData, setUserData] = useState<Partial<User> | null>({
+    id: 0,
     name: '',
-    pokedexId: '',
+    pokedexId: "",
     sprite: '',
     image: '',
     stats: {
@@ -65,10 +67,7 @@ const Stats: React.FC = () => {
       const response = await axios.get(`https://pokebuildapi.fr/api/v1/pokemon/${pokedexId}`);
       setUserData(response.data);
 
-      setUserData((prevState) => ({
-        ...prevState,
-
-      }) as Partial<User>);
+      setUserData((prevState) => ({ ...prevState, }) as Partial<User>);
     } catch (error) {
       console.error('Error fetching Pokémon data:', error);
     } finally {
@@ -96,12 +95,12 @@ const Stats: React.FC = () => {
       {userData && (
         <div className="stats-container">
           <div className="overlay">
-          {isLoading && (
-            <div className='ball-container'>
-              <div className="ball">
+            {isLoading && (
+              <div className='ball-container'>
+                <div className="ball">
+                </div>
               </div>
-            </div>
-          )}
+            )}
           </div>
           <div className='header-stats'>
             <div className='header-stat'>
@@ -183,7 +182,7 @@ const Stats: React.FC = () => {
 
               </div>
               <div className='resistances'>
-              {userData.apiResistances && userData.apiResistances.length > 0 && (
+                {userData.apiResistances && userData.apiResistances.length > 0 && (
                   <div className="resistances-container">
                     <div className="resistance-category">
                       <h4>Vulnérable</h4>
@@ -228,12 +227,12 @@ const Stats: React.FC = () => {
                       </ul>
                     </div>
                   </div>
-              )}
-            </div>
+                )}
+              </div>
             </div>
             <div className="image-evolutions-container">
               {pokemonPreEvolution && pokemon && pokemonPreEvolution.id === pokemon.id ? (
-                <p className='evo-pokemon'>Pas de pré-évolution</p>
+                <p className='evo-pokemon'></p>
               ) : (
                 pokemonPreEvolution ? (
                   <Link to={`/Stats/${pokemonPreEvolution.id}`}>
@@ -241,7 +240,7 @@ const Stats: React.FC = () => {
                       alt={pokemonPreEvolution.name} />
                   </Link>
                 ) : (
-                  <p>Pas de pré-évolution</p>
+                  <p></p>
                 )
               )}
               <div className='down-arrow'>
@@ -260,7 +259,7 @@ const Stats: React.FC = () => {
                       alt={pokemonEvolution.name} />
                   </Link>
                 ) : (
-                  <p>Pas d'évolution</p>
+                  <p></p>
                 )
               )}
             </div>

@@ -3,6 +3,8 @@ import axios from 'axios';
 import './App.css';
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import Stats from './Stats';
+import Modal from '../component/Modal';
+import useModal from '../component/useModal';
 
 interface TypePok {
   name: string;
@@ -23,10 +25,40 @@ function App() {
   const [users, setUsers] = useState<User[]>([]);
   const [types, setTypes] = useState<TypePok[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { isOpen, toggle } = useModal();
   const [search, setSearch] = useState<string>('');
   const [selectedType, setSelectedType] = useState('Tous les types');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedGeneration, setSelectedGeneration] = useState<string>('all');
+
+  const [formData, setFormData] = useState({
+    name: '',
+    prenom: '',
+    password: ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Enregistrer les données dans le stockage local
+    localStorage.setItem('idconnection', JSON.stringify(formData));
+    // Réinitialiser le formulaire après l'envoi
+    setFormData({
+      name: '',
+      prenom: '',
+      password: ''
+    });
+  };
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
 
   async function fetchPokemon() {
     setIsLoading(true);
@@ -102,6 +134,32 @@ function App() {
               </div>
               <div className='header'>
                 <h1>Pokédex</h1>
+                <div className="modal-conatiner">
+                  <button onClick={toggle}>Open Modal </button>
+                  <Modal isOpen={!isOpen} toggle={toggle}>
+                    <form onSubmit={handleSubmit}>
+                      <label>
+                        <ul>
+                          <li>
+                        Nom :
+                        <input type="text" name='name' value={formData.name} onChange={handleChange} />
+                        </li>
+                        <li>
+                        prénom :
+                        <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} />
+                        </li>
+                        <li>
+                        mot de passe :
+                        <input type="password" name='password' value={formData.password} onChange={handleChange} /> 
+                        </li>
+                        </ul>
+                      </label>
+                      
+                      <input type="submit" value="Envoyer" />
+                    </form>
+                    <button onClick={toggle}>Quitter</button>
+                  </Modal>
+                </div>
               </div>
               <div className='filtre'>
                 <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher un pokémon" />

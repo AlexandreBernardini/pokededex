@@ -16,7 +16,13 @@
   .resistances{
     border : black 1px solid;
   }
-
+  .footer {
+    width: 100%;
+display: flex;
+justify-content: space-between;
+margin-right: 20%;
+color: white;
+  }
   .header-stats {
     display: flex;
     width: 100%;
