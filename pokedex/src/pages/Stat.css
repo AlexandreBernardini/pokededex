@@ -12,18 +12,25 @@
     width: 100%;
     color: white;
   }
+
+  .resistances{
+    border : black 1px solid;
+  }
+
   .header-stats {
     display: flex;
     width: 100%;
     justify-content: space-between;
+      
+  background-image: url("../image/fond-3.jpeg");
+  background-position: center;
+  background-size: cover;
   }
   .pokemon-card {
     display: flex;
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    transition: transform 0.3s ease;
     margin: 20px;
     padding: 20px;
     width: 95%;
@@ -44,6 +51,9 @@
   .pokemon-types {
     margin-top: 10px;
     color: black;
+  }
+  .type-image {
+    border: black 1px solid;
   }
   
     .pokemon-types h4 {
@@ -253,4 +263,23 @@
     width: 50px;
     height: 50px;
   } 
+
+  .image-evolutions-container {
+    border: black 1cap solid;
+    height: 100%;
+    width: 200px;
+    margin-left: 2%;
+    background: linear-gradient(to bottom,black , gray,  black , gray, black,gray);
+
+  }
+
+  .image-evolutions-container img {
+    width: 80%;
+
+  }
+  .down-arrow>* {
+    height: 50px;
+    width: 50px;
+    color: white;
+  }
   

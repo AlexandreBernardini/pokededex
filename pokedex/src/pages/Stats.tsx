@@ -4,18 +4,8 @@ import axios from 'axios';
 import { Link, useParams } from 'react-router-dom';
 import './Stat.css';
 import { AiOutlineHome } from "react-icons/ai";
-
-interface Evolution {
-  name: string;
-  pokedexId: number;
-  sprite: string;
-}
-
-interface PreEvolution {
-  name: string;
-  pokedexId: number;
-  sprite: string;
-}
+import { FaAnglesDown } from "react-icons/fa6";
+import GetOnePokemon from '../component/PokemonEvol';
 
 interface TypePok {
   name: string;
@@ -43,16 +33,13 @@ interface User {
   sprite: string;
   image: string;
   stats: UserStats;
-  apiEvolutions: Evolution[];
-  apiPreEvolution: PreEvolution[];
   apiTypes: TypePok[];
   apiResistances: Ressistance[];
-  evolutionDetails: { name: string; pokedexId: number; sprite: string }[];
-  preEvolutionDetails: { name: string; pokedexId: number; sprite: string }[];
 }
 
 const Stats: React.FC = () => {
   const { pokedexId } = useParams<{ pokedexId: string }>();
+  const { pokemon, pokemonEvolution, pokemonPreEvolution } = GetOnePokemon(Number(pokedexId));
   const [userData, setUserData] = useState<Partial<User> | null>({
     name: '',
     pokedexId: '',
@@ -66,13 +53,10 @@ const Stats: React.FC = () => {
       special_defense: 0,
       speed: 0,
     },
-    apiEvolutions: [],
-    apiPreEvolution: [],
     apiTypes: [],
     apiResistances: [],
-    evolutionDetails: [],
-    preEvolutionDetails: [],
   });
+
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchPokemonData = async () => {
@@ -81,30 +65,8 @@ const Stats: React.FC = () => {
       const response = await axios.get(`https://pokebuildapi.fr/api/v1/pokemon/${pokedexId}`);
       setUserData(response.data);
 
-      const evolutionDetailsPromises = response.data.apiEvolutions.map(async (evolution: Evolution) => {
-        const evolutionResponse = await axios.get(`https://pokebuildapi.fr/api/v1/pokemon/${evolution.pokedexId}`);
-        return {
-          name: evolutionResponse.data.name,
-          pokedexId: evolutionResponse.data.pokedexId,
-          sprite: evolutionResponse.data.sprite,
-        };
-      });
-      const evolutionDetailsPromise = response.data.apiEvolutions.map(async (evolution: PreEvolution) => {
-        const evolutionResponse = await axios.get(`https://pokebuildapi.fr/api/v1/pokemon/${evolution.pokedexId - 2}`);
-        return {
-          name: evolutionResponse.data.name,
-          pokedexId: evolutionResponse.data.pokedexId,
-          sprite: evolutionResponse.data.sprite,
-        };
-      });
-
-      const evolutionDetails = await Promise.all(evolutionDetailsPromises);
-      const preEvolutionDetails = await Promise.all(evolutionDetailsPromise);
-
       setUserData((prevState) => ({
         ...prevState,
-        evolutionDetails: [...evolutionDetails],
-        preEvolutionDetails: [...preEvolutionDetails],
 
       }) as Partial<User>);
     } catch (error) {
@@ -133,34 +95,37 @@ const Stats: React.FC = () => {
 
       {userData && (
         <div className="stats-container">
+          <div className="overlay">
           {isLoading && (
             <div className='ball-container'>
               <div className="ball">
               </div>
             </div>
           )}
-          <div className='header-stats'>
-          <div className='header-stat'>
-            <h1>{userData.name}</h1>
-            <p>Statistiques du Pokémon avec l'ID Pokedex : {userData.pokedexId}</p>            
           </div>
-          <div className='button-place'>
+          <div className='header-stats'>
+            <div className='header-stat'>
+              <h1>{userData.name}</h1>
+            </div>
+            <div className='button-place'>
               <Link to="/">
                 <button><AiOutlineHome /></button>
               </Link>
             </div>
-            </div>
+          </div>
 
           <div className="pokemon-card">
-            <div className="pokemon-image">
-              <img src={userData.image} alt="User Thumbnail" />
+            <div className='image'>
+              <div className="pokemon-image">
+                <img src={userData.image} alt="User Thumbnail" />
+              </div>
               <div className="pokemon-types">
                 <h4>Types:</h4>
                 {userData.apiTypes ? (
                   <ul>
                     {userData.apiTypes.map((type, index) => (
                       <li key={index}>
-                        <img src={type.image} alt={`${type.name} Type`} />
+                        <img className='type-image' src={type.image} alt={`${type.name} Type`} />
                         <div className="type-name-container">
                           <span>{type.name}</span>
                         </div>
@@ -217,14 +182,14 @@ const Stats: React.FC = () => {
                 </div>
 
               </div>
+              <div className='resistances'>
               {userData.apiResistances && userData.apiResistances.length > 0 && (
-                <div> 
                   <div className="resistances-container">
                     <div className="resistance-category">
                       <h4>Vulnérable</h4>
                       <ul>
                         {userData.apiResistances
-                          .filter((resistance) => resistance.damage_relation === 'vulnerable')
+                          .filter((resistance) => resistance.damage_multiplier > 1)
                           .map((resistance, index) => (
                             <li key={index}>
                               <span className={getResistanceColorClass(resistance.damage_multiplier)}>
@@ -238,7 +203,7 @@ const Stats: React.FC = () => {
                       <h4>Résistant</h4>
                       <ul>
                         {userData.apiResistances
-                          .filter((resistance) => resistance.damage_relation === 'resistant')
+                          .filter((resistance) => resistance.damage_multiplier < 1)
                           .map((resistance, index) => (
                             <li key={index}>
                               <span className={getResistanceColorClass(resistance.damage_multiplier)}>
@@ -252,7 +217,7 @@ const Stats: React.FC = () => {
                       <h4>Neutre</h4>
                       <ul>
                         {userData.apiResistances
-                          .filter((resistance) => resistance.damage_relation === 'neutral')
+                          .filter((resistance) => resistance.damage_multiplier === 1)
                           .map((resistance, index) => (
                             <li key={index}>
                               <span className={getResistanceColorClass(resistance.damage_multiplier)}>
@@ -263,41 +228,41 @@ const Stats: React.FC = () => {
                       </ul>
                     </div>
                   </div>
-                </div>
               )}
             </div>
-
-            <div className="evolution-container">
-              <div className="evolution-col">
-                {userData.preEvolutionDetails && userData.preEvolutionDetails.length > 0 && (
-                  <div>
-                    <h3>prÉvolutions</h3>
-                    <ul>
-                      {userData.preEvolutionDetails.map((evolution) => (
-                        <li key={evolution.pokedexId}>
-                          <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
-                          <span>{evolution.name}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+            </div>
+            <div className="image-evolutions-container">
+              {pokemonPreEvolution && pokemon && pokemonPreEvolution.id === pokemon.id ? (
+                <p className='evo-pokemon'>Pas de pré-évolution</p>
+              ) : (
+                pokemonPreEvolution ? (
+                  <Link to={`/Stats/${pokemonPreEvolution.id}`}>
+                    <img className='evo-pokemon' src={pokemonPreEvolution.image}
+                      alt={pokemonPreEvolution.name} />
+                  </Link>
+                ) : (
+                  <p>Pas de pré-évolution</p>
+                )
+              )}
+              <div className='down-arrow'>
+                <FaAnglesDown />
               </div>
-              <div className="evolution-col">
-                {userData.evolutionDetails && userData.evolutionDetails.length > 0 && (
-                  <div>
-                    <h3>Évolutions</h3>
-                    <ul>
-                      {userData.evolutionDetails.map((evolution) => (
-                        <li key={evolution.pokedexId}>
-                          <img src={evolution.sprite} alt={`${evolution.name} Thumbnail`} />
-                          <span>{evolution.name}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+              <img className='evo-pokemon' src={userData.image} alt={userData.name} />
+              <div className='down-arrow'>
+                <FaAnglesDown />
               </div>
+              {pokemonEvolution && pokemon && pokemonEvolution.id === pokemon.id ? (
+                <p className='evo-pokemon'>Pas d'évolution</p>
+              ) : (
+                pokemonEvolution ? (
+                  <Link to={`/Stats/${pokemonEvolution.id}`}>
+                    <img className='evo-pokemon' src={pokemonEvolution.image}
+                      alt={pokemonEvolution.name} />
+                  </Link>
+                ) : (
+                  <p>Pas d'évolution</p>
+                )
+              )}
             </div>
           </div>
         </div>

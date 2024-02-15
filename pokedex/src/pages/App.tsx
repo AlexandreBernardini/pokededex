@@ -28,7 +28,7 @@ function App() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedGeneration, setSelectedGeneration] = useState<string>('all');
 
-  const fetchPokemon = async () => {
+  async function fetchPokemon() {
     setIsLoading(true);
     try {
       let apiUrl = 'https://pokebuildapi.fr/api/v1/pokemon/';
@@ -49,7 +49,7 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   const sortUsers = (userList: User[]): User[] => {
     return [...userList].sort((a, b) => {
@@ -83,7 +83,6 @@ function App() {
     fetchPokemon();
   }, [selectedGeneration, selectedType, sortOrder]);
 
-
   const filteredUsers = sortUsers(filterByType(filterByGeneration(searchUser(users))));
 
 
@@ -93,12 +92,14 @@ function App() {
         <Routes>
           <Route path='/' element={
             <div className="container">
-              {isLoading && (
-                <div className='ball-container'>
-                  <div className="ball">
+              <div className="overlay">
+                {isLoading && (
+                  <div className='ball-container'>
+                    <div className="ball">
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
               <div className='header'>
                 <h1>Pokédex</h1>
               </div>
