@@ -1,10 +1,14 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import Stats from './Stats';
 import Modal from '../component/Modal';
 import useModal from '../component/useModal';
+import PokemonCard from '../component/PokemonCard';
+import { RiTeamFill } from "react-icons/ri";
+import { MdAccountCircle } from "react-icons/md";
+import PokeTeam from './Team';
 
 interface TypePok {
   name: string;
@@ -30,6 +34,8 @@ function App() {
   const [selectedType, setSelectedType] = useState('Tous les types');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedGeneration, setSelectedGeneration] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState<number>(1); // État pour gérer la page actuelle
+  const itemsPerPage = 32; // Nombre de Pokémon par page
 
   const [formData, setFormData] = useState({
     name: '',
@@ -56,9 +62,6 @@ function App() {
       password: ''
     });
   };
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState('');
 
   async function fetchPokemon() {
     setIsLoading(true);
@@ -115,8 +118,11 @@ function App() {
     fetchPokemon();
   }, [selectedGeneration, selectedType, sortOrder]);
 
+  // Calcule l'index de début et de fin des Pokémon à afficher sur la page actuelle
+  const indexOfLastPokemon = currentPage * itemsPerPage;
+  const indexOfFirstPokemon = indexOfLastPokemon - itemsPerPage;
   const filteredUsers = sortUsers(filterByType(filterByGeneration(searchUser(users))));
-
+  const currentPokemon = filteredUsers.slice(indexOfFirstPokemon, indexOfLastPokemon);
 
   return (
     <>
@@ -124,37 +130,42 @@ function App() {
         <Routes>
           <Route path='/' element={
             <div className="container">
-              <div className="overlay">
-                {isLoading && (
+
+              {isLoading && (
+                <div className="overlay">
                   <div className='ball-container'>
                     <div className="ball">
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+
               <div className='header'>
                 <h1>Pokédex</h1>
                 <div className="modal-conatiner">
-                  <button onClick={toggle}>Open Modal </button>
+                  <Link to="/Team">
+                    <button className='button-container'><RiTeamFill /></button>
+                  </Link>
+                  <button className='button-container' onClick={toggle}><MdAccountCircle /> </button>
                   <Modal isOpen={!isOpen} toggle={toggle}>
                     <form onSubmit={handleSubmit}>
                       <label>
                         <ul>
                           <li>
-                        Nom :
-                        <input type="text" name='name' value={formData.name} onChange={handleChange} />
-                        </li>
-                        <li>
-                        prénom :
-                        <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} />
-                        </li>
-                        <li>
-                        mot de passe :
-                        <input type="password" name='password' value={formData.password} onChange={handleChange} /> 
-                        </li>
+                            Nom :
+                            <input type="text" name='name' value={formData.name} onChange={handleChange} />
+                          </li>
+                          <li>
+                            prénom :
+                            <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} />
+                          </li>
+                          <li>
+                            mot de passe :
+                            <input type="password" name='password' value={formData.password} onChange={handleChange} />
+                          </li>
                         </ul>
                       </label>
-                      
+
                       <input type="submit" value="Envoyer" />
                     </form>
                     <button onClick={toggle}>Quitter</button>
@@ -189,38 +200,35 @@ function App() {
                 </select>
               </div>
               <div className="card-container">
-                {filteredUsers.slice().map((user) => (
-                  <Link to={`/Stats/${user.pokedexId}`}>
-                    <div className="card" key={user.pokedexId}>
-                      <img src={user.image} alt="User Thumbnail" />
-                      <div className="card-details">
-                        <span>N°{user.pokedexId}</span>
-                        <span>{user.name}</span>
-                      </div>
-                      <div className="pokemon-types-app">
-                        {user.apiTypes ? (
-                          <ul>
-                            {user.apiTypes.map((type, index) => (
-                              <li key={index}>
-                                <img src={type.image} alt={`${type.name} Type`} />
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p>Aucun type disponible</p>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
+                {currentPokemon.map((user) => (
+                  <PokemonCard key={user.id} pokemon={user} />
                 ))}
+              </div>
+
+              {/*Pagination */}
+              <div className="pagination">
+                {currentPage > 1 && (
+                  <button onClick={() => setCurrentPage(currentPage - 1)}>Précédent</button>
+                )}
+                {/* Afficher les 3 pages suivantes */}
+                {Array.from({ length: Math.min(3, Math.ceil(filteredUsers.length / itemsPerPage) - currentPage) }, (_, i) => (
+                  <button key={currentPage + i + 1} onClick={() => setCurrentPage(currentPage + i + 1)}>
+                    {currentPage + i + 1}
+                  </button>
+                ))}
+                {/* Afficher le bouton "Suivant" */}
+                {currentPage < Math.ceil(filteredUsers.length / itemsPerPage) && (
+                  <button onClick={() => setCurrentPage(currentPage + 1)}>Suivant</button>
+                )}
               </div>
             </div>
           } />
           <Route path='/Stats/:pokedexId' element={<Stats />} />
+          <Route path='/Team' element={<PokeTeam />} />
         </Routes>
       </BrowserRouter>
     </>
-  )
+  );
 }
 
 export default App;

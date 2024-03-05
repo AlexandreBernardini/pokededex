@@ -288,4 +288,10 @@ color: white;
     width: 50px;
     color: white;
   }
+
+  .button-addpokemon{
+    width: 100px;
+    height: 100px;
+    position: absolute;
+  }
   

@@ -6,6 +6,9 @@ import './Stat.css';
 import { AiOutlineHome } from "react-icons/ai";
 import { FaAnglesDown } from "react-icons/fa6";
 import GetOnePokemon from '../component/PokemonEvol';
+import { TbCapture, TbCaptureOff } from "react-icons/tb";
+import { RiTeamFill } from "react-icons/ri";
+
 
 interface TypePok {
   name: string;
@@ -41,6 +44,7 @@ interface User {
 const Stats: React.FC = () => {
   const { pokedexId } = useParams<{ pokedexId: string }>();
   const { pokemon, pokemonEvolution, pokemonPreEvolution } = GetOnePokemon(Number(pokedexId));
+  const [capturedPokemons, setCapturedPokemons] = useState<number[]>([]);
   const [userData, setUserData] = useState<Partial<User> | null>({
     id: 0,
     name: '',
@@ -77,6 +81,10 @@ const Stats: React.FC = () => {
 
   useEffect(() => {
     fetchPokemonData();
+    const capturedPokemonsString = localStorage.getItem('capturedPokemons');
+    if (capturedPokemonsString) {
+      setCapturedPokemons(JSON.parse(capturedPokemonsString));
+    }
   }, [pokedexId]);
 
   const getResistanceColorClass = (damageMultiplier: number): string => {
@@ -89,24 +97,40 @@ const Stats: React.FC = () => {
     }
   };
 
+  const isCaptured = capturedPokemons.includes(pokemon?.id ?? 0);
+  const addToLocalStorage = () => {
+    if (isCaptured) {
+      const updatedCapturedPokemons = capturedPokemons.filter((id: number) => id !== pokemon?.id);
+      localStorage.setItem('capturedPokemons', JSON.stringify(updatedCapturedPokemons));
+      setCapturedPokemons(updatedCapturedPokemons);
+    } else {
+      const updatedCapturedPokemons = [...capturedPokemons, pokemon?.id ?? 0];
+      localStorage.setItem('capturedPokemons', JSON.stringify(updatedCapturedPokemons));
+      setCapturedPokemons(updatedCapturedPokemons);
+    }
+  };
+
   return (
     <>
 
       {userData && (
         <div className="stats-container">
-          <div className="overlay">
-            {isLoading && (
+          {isLoading && (
+            <div className="overlay">
               <div className='ball-container'>
                 <div className="ball">
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
           <div className='header-stats'>
             <div className='header-stat'>
               <h1>{userData.name}</h1>
             </div>
             <div className='button-place'>
+            <Link to="/Team">
+                    <button className='button-container'><RiTeamFill /></button>
+                  </Link>
               <Link to="/">
                 <button><AiOutlineHome /></button>
               </Link>
@@ -116,6 +140,9 @@ const Stats: React.FC = () => {
           <div className="pokemon-card">
             <div className='image'>
               <div className="pokemon-image">
+                <button className='button-addpokemon' onClick={addToLocalStorage}>
+                  {isCaptured ? <TbCaptureOff /> : <TbCapture />}
+                </button>
                 <img src={userData.image} alt="User Thumbnail" />
               </div>
               <div className="pokemon-types">
@@ -262,6 +289,7 @@ const Stats: React.FC = () => {
                   <p></p>
                 )
               )}
+
             </div>
           </div>
         </div>
